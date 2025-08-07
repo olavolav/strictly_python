@@ -1,0 +1,7 @@
+[project]
+name = "strict-python"
+version = "0.1.0"
+description = "Adds the @strict decorator to Python for strict typing & performance."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
