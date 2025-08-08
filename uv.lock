@@ -121,7 +121,7 @@ wheels = [
 ]
 
 [[package]]
-name = "strict_python"
+name = "strictly-python"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

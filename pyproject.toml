@@ -1,5 +1,5 @@
 [project]
-name = "strict_python"
+name = "strictly_python"
 version = "0.1.0"
 description = "Adds the @strict decorator to Python for strict typing & performance."
 readme = "README.md"
@@ -15,4 +15,4 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["strict_python*"]
+include = ["strictly_python*"]
