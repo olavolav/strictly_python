@@ -33,5 +33,6 @@ def strict(func: Callable):
     return_type = python_type_to_numba(hints["return"])
 
     numba_sig = return_type(*arg_types)
-    compiled_func = njit(numba_sig)(func)  # ✅ no need for nopython=True
+    # No need for `nopython=True` since specifying types implies it
+    compiled_func = njit(numba_sig)(func)
     return compiled_func
