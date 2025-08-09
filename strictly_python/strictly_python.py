@@ -10,11 +10,13 @@ PYTHON_TO_NUMBA = {
     None: types.void,
 }
 
+
 def python_type_to_numba(py_type):
     try:
         return PYTHON_TO_NUMBA[py_type]
     except KeyError:
         raise TypeError(f"No Numba equivalent for type: {py_type}")
+
 
 def strict(func: Callable):
     sig = inspect.signature(func)
@@ -26,9 +28,9 @@ def strict(func: Callable):
             raise TypeError(f"Missing type annotation for argument: {param.name}")
         arg_types.append(python_type_to_numba(hints[param.name]))
 
-    if 'return' not in hints:
+    if "return" not in hints:
         raise TypeError("Missing return type annotation")
-    return_type = python_type_to_numba(hints['return'])
+    return_type = python_type_to_numba(hints["return"])
 
     numba_sig = return_type(*arg_types)
     compiled_func = njit(numba_sig)(func)  # ✅ no need for nopython=True

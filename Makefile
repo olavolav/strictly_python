@@ -1,18 +1,14 @@
 # EXAMPLES := $(wildcard examples/*.py)
-.PHONY: test publish clean # help format linter type_check visual_check unit_test $(EXAMPLES) run_all_examples
+.PHONY: test publish clean help format unit_test # linter type_check visual_check $(EXAMPLES) run_all_examples
 
-# test: format linter type_check visual_check unit_test
+test: format unit_test # linter type_check visual_check
 
 # help:
 #         @echo "Available commands:"
 #         @echo "\ttest format linter type_check visual_check unit_test run_all_examples"
 
-# format:
-#         @echo "##############"
-#         @echo "# Code style #"
-#         @echo "##############"
-#         uv run ruff format
-#         @echo
+format:
+	uv run ruff format
 
 # linter:
 #         @echo "##########"
@@ -28,7 +24,7 @@
 #         uv run mypy --namespace-packages uniplot/**/*.py tests/**/*.py
 #         @echo
 
-test:
+unit_test:
 	uv run python3 -m pytest tests/
 
 dist/:
