@@ -155,6 +155,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "numpy" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -164,6 +165,7 @@ requires-dist = [{ name = "numba", specifier = ">=0.61.2" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "numpy", specifier = ">=2.2.6" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "ruff", specifier = ">=0.12.8" },
 ]

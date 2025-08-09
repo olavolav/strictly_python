@@ -1,5 +1,6 @@
 import pytest
-from typing import List
+import numpy as np
+from numpy.typing import NDArray
 
 from strictly_python import strict
 
@@ -31,10 +32,11 @@ def test_strict_with_object_type_hints_should_fail():
         my_function(3, {"apple": "tasty"})
 
 
-def test_strict_with_list_of_integers_as_argument():
+def test_strict_with_array_as_argument():
     @strict
-    def my_function(x: List[int]) -> int:
+    def my_function(x: NDArray) -> int:
         return x[0] + x[-1]
 
-    result = my_function([1, 2, 3, 4, 5])
+    array = np.array([1, 2, 3, 4, 5])
+    result = my_function(array)
     assert result == 6
