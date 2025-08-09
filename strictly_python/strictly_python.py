@@ -1,38 +1,40 @@
 import inspect
-from typing import get_type_hints, Callable
-from numba import njit, types
-
-PYTHON_TO_NUMBA = {
-    int: types.int64,
-    float: types.float64,
-    bool: types.boolean,
-    str: types.unicode_type,
-    None: types.void,
-}
+from typing import get_type_hints
+from numba import njit
+from numba.core.errors import TypingError, LoweringError
 
 
-def python_type_to_numba(py_type):
-    try:
-        return PYTHON_TO_NUMBA[py_type]
-    except KeyError:
-        raise TypeError(f"No Numba equivalent for type: {py_type}")
+def strict(func=None, *, cache=True, fastmath=False, parallel=False):
+    """
+    Strict = compile-or-fail with friendly errors:
+      - Enforces presence of type hints for all params + return at decoration time
+      - Uses Numba inference in nopython mode on first call (via njit)
+      - On failure, raises TypeError with a short summary first, then full Numba details
+    """
 
+    def deco(f):
+        # Require annotations for all params + return
+        sig = inspect.signature(f)
+        hints = get_type_hints(f)
+        for name in sig.parameters:
+            if name not in hints:
+                raise TypeError(f"Missing type hint for '{name}' in '{f.__name__}'")
+        if "return" not in hints:
+            raise TypeError(f"Missing return type hint in '{f.__name__}'")
 
-def strict(func: Callable):
-    sig = inspect.signature(func)
-    hints = get_type_hints(func)
+        compiled = njit(cache=cache, fastmath=fastmath, parallel=parallel)(f)
 
-    arg_types = []
-    for param in sig.parameters.values():
-        if param.name not in hints:
-            raise TypeError(f"Missing type annotation for argument: {param.name}")
-        arg_types.append(python_type_to_numba(hints[param.name]))
+        def wrapper(*args, **kwargs):
+            try:
+                return compiled(*args, **kwargs)
+            except (TypingError, LoweringError) as e:
+                # Short, Pythonic summary first
+                short = getattr(e, "msg", None) or str(e).splitlines()[0]
+                long = str(e).rstrip()
+                msg = f"Strict typing failed: {short}\n\n--- Numba details ---\n{long}"
+                # Suppress chained Numba traceback; we included details in the message
+                raise TypeError(msg) from None
 
-    if "return" not in hints:
-        raise TypeError("Missing return type annotation")
-    return_type = python_type_to_numba(hints["return"])
+        return wrapper
 
-    numba_sig = return_type(*arg_types)
-    # No need for `nopython=True` since specifying types implies it
-    compiled_func = njit(numba_sig)(func)
-    return compiled_func
+    return deco(func) if func is not None else deco

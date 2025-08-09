@@ -1,4 +1,5 @@
 import pytest
+from typing import List
 
 from strictly_python import strict
 
@@ -26,3 +27,14 @@ def test_strict_with_object_type_hints_should_fail():
         @strict
         def my_function(x: int, y: dict) -> int:
             return int(y**x)
+
+        my_function(3, {"apple": "tasty"})
+
+
+def test_strict_with_list_of_integers_as_argument():
+    @strict
+    def my_function(x: List[int]) -> int:
+        return x[0] + x[-1]
+
+    result = my_function([1, 2, 3, 4, 5])
+    assert result == 6
