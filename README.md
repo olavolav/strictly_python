@@ -16,7 +16,7 @@ What this does under the hood is translates the type hints to Numba
 types and triggers JIT compliation via Numba.
 This means that restrictions to the arguments are the same as in Numba.
 
-# Why is this faster?
+## Why is this faster?
 
 One of the core limitations to Python performance is dynamic typing.
 This means that even a seemingly trivial function like the following
