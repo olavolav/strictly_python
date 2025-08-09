@@ -5,7 +5,7 @@ and fast performance, powered by [Numba](https://numba.pydata.org/).
 
 Example:
 ```python
-from strict_python import strict
+from strictly_python import strict
 
 @strict
 def my_function(x: int, y: float) -> int:
@@ -31,3 +31,5 @@ also be any other type that has a `__add__` function defined. In essence,
 even for the most simple cases, and even with type hints, Python needs to
 operate on large dictionaries (hash maps) around and do expensive memory
 access, rather than simple integer addition.
+
+See `scripts/bad_example.py` for such an example.
