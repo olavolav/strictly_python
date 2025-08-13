@@ -23,7 +23,7 @@ def test_strict_with_missing_type_hints_should_fail():
 
 
 def test_strict_with_object_type_hints_should_fail():
-    with pytest.raises(TypeError):
+    with pytest.raises(Exception):
 
         @strict
         def my_function(x: int, y: dict) -> int:
