@@ -2,13 +2,6 @@
 Testing performance of computing Fibonacci numbers in pure Python and using `@strict`.
 
 Note that this is a slightly artificial test since it ignores caching strategies.
-
-Typical output:
-```
-fib_py     : 109.61 ms
-fib_strict : 0.04 ms
-Speedup: 2969.1×
-```
 """
 
 import time

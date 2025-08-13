@@ -16,6 +16,15 @@ What this does under the hood is translates the type hints to Numba
 types and triggers JIT compliation via Numba.
 This means that restrictions to the arguments are the same as in Numba.
 
+The end result is strictly typed subset of Python that runs much
+faster, see the Fibonacci example in the `scripts/` folder:
+```shell
+fib_py     : 109.61 ms
+fib_strict : 0.04 ms
+Speedup: 2969.1×
+```
+
+
 ## Why is this faster?
 
 One of the core limitations to Python performance is dynamic typing.
