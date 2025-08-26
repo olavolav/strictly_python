@@ -1,6 +1,6 @@
 import os
 import inspect
-from typing import get_type_hints
+from typing import get_type_hints, Any
 
 
 def _identity_decorator(f):
@@ -30,7 +30,9 @@ def make_strict():
         # fall back to the no-op decorator so code still runs.
         return _identity_decorator
 
-    def strict(func=None, *, cache=True, fastmath=False, parallel=False):
+    def strict(
+        func=None, *, cache=True, fastmath=False, parallel=False, allow_any=False
+    ):
         """
         @strict decorator:
         - Ensures every function parameter and the return type has an annotation.
@@ -44,33 +46,43 @@ def make_strict():
             cache (bool): Whether to cache compiled machine code across runs.
             fastmath (bool): Allow unsafe floating-point optimizations.
             parallel (bool): Enable parallel execution (Numba's prange, etc.).
+            allow_any (bool): If False (default), reject typing.Any in annotations.
         """
 
         def deco(f):
-            # Require presence of annotations for all parameters and the return type.
-            # This enforces a discipline: functions must be fully type-annotated.
+            # Enforce presence of annotations for all params and the return type.
             sig = inspect.signature(f)
-            hints = get_type_hints(f)  # resolves forward references, if any
+            hints = get_type_hints(f)  # resolves forward references
 
             for name in sig.parameters:
                 if name not in hints:
-                    raise TypeError(
-                        f"Missing type hint for parameter '{name}' in '{f.__name__}'"
-                    )
+                    raise TypeError(f"Missing type hint for '{name}' in '{f.__name__}'")
             if "return" not in hints:
                 raise TypeError(f"Missing return type hint in '{f.__name__}'")
 
-            # Compile with Numba's njit. This will run type inference on first call
-            # and fail at runtime if the argument types are unsupported.
+            # Disallow typing.Any by default (it weakens the strict contract).
+            if not allow_any:
+                for where, t in list(hints.items()):
+                    if t is Any:
+                        kind = (
+                            "return type"
+                            if where == "return"
+                            else f"parameter '{where}'"
+                        )
+                        raise TypeError(
+                            f"@strict does not allow `Any` for {kind}. "
+                            "Use a concrete type (e.g., int, float, np.ndarray, List[int], "
+                            "or a Union[...] of supported types)."
+                        )
+
+            # Compile and return the Numba Dispatcher directly (no Python wrapper),
+            # so strict→strict calls stay entirely in native code.
             dispatcher = njit(cache=cache, fastmath=fastmath, parallel=parallel)(f)
 
-            # For convenience, expose the original Python function as an attribute.
-            # This is *not* used in compiled paths; calling it from jitted code
-            # would reintroduce Python overhead.
+            # Expose the original Python function for debugging/tests if needed.
+            # Do NOT call this from jitted code (would reintroduce Python overhead).
             dispatcher.python = f
 
-            # Return the compiled Dispatcher directly so it can be called from other
-            # jitted functions without a Python round-trip.
             return dispatcher
 
         # Support both @strict and @strict(...)

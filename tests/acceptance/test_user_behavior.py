@@ -1,4 +1,5 @@
 import pytest
+from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
@@ -19,6 +20,14 @@ def test_strict_with_missing_type_hints_should_fail():
 
         @strict
         def my_function(x: int, y) -> int:
+            return int(y**x)
+
+
+def test_strict_with_any_type_should_fail():
+    with pytest.raises(TypeError):
+
+        @strict
+        def my_function(x: int, y: Any) -> int:
             return int(y**x)
 
 
