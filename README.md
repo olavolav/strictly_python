@@ -3,6 +3,8 @@
 This library adds the `@strict` decorator to Python for strict typing
 and fast performance, powered by [Numba](https://numba.pydata.org/).
 
+It is an experiment.
+
 Example:
 ```python
 from strictly_python import strict
